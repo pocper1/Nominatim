@@ -79,7 +79,6 @@ class SetupAll:
                 "Cannot use --continue and --prepare-database together."
             )
 
-
         from ..utils.async_ops import run_legacy_asyncio
         return run_legacy_asyncio(self.async_run(args))
 
