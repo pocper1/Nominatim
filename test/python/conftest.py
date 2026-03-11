@@ -7,15 +7,6 @@
 import itertools
 import sys
 import asyncio
-
-if sys.platform == 'win32':
-    _orig_new_event_loop = asyncio.new_event_loop
-
-    def _windows_new_event_loop():
-        return asyncio.SelectorEventLoop()
-
-    asyncio.new_event_loop = _windows_new_event_loop
-
 from pathlib import Path
 import psycopg
 from psycopg import sql as pysql
@@ -39,6 +30,18 @@ def _with_srid(geom, default=None):
         return None if default is None else f"SRID=4326;{default}"
 
     return f"SRID=4326;{geom}"
+
+
+@pytest.fixture(scope="function")
+def event_loop():
+    if sys.platform == 'win32':
+        loop = asyncio.SelectorEventLoop()
+    else:
+        loop = asyncio.new_event_loop()
+
+    yield loop
+
+    loop.close()
 
 
 @pytest.fixture
