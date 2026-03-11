@@ -21,7 +21,7 @@ class APIRunner:
         self.exec_engine = create_func(environ)
 
     def run(self, endpoint, params, http_headers):
-        return asyncio.run(self.exec_engine(endpoint, params, http_headers))
+        return asyncio.run(self.exec_engine(endpoint, params, http_headers), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
 
     def run_step(self, endpoint, base_params, datatable, fmt, http_headers):
         if fmt:

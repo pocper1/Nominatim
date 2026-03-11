@@ -185,5 +185,5 @@ class UpdateReplication:
         if args.check_for_updates:
             return self._check_for_updates(args)
 
-        asyncio.run(self._update(args))
+        asyncio.run(self._update(args), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
         return 0

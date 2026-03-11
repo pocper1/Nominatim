@@ -158,7 +158,7 @@ class AdminServe:
                            help='Webserver framework to run. (default: falcon)')
 
     def run(self, args: NominatimArgs) -> int:
-        asyncio.run(self.run_uvicorn(args))
+        asyncio.run(self.run_uvicorn(args), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
 
         return 0
 

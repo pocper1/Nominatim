@@ -80,8 +80,8 @@ class SetupAll:
                 "Cannot use --continue and --prepare-database together."
             )
 
-        return asyncio.run(self.async_run(args))
-
+        return asyncio.run(self.async_run(args), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
+    
     async def async_run(self, args: NominatimArgs) -> int:
         from ..data import country_info
         from ..tools import database_import, postcodes, freeze

@@ -39,7 +39,7 @@ class UpdateIndex:
                            help='Maximum/finishing rank')
 
     def run(self, args: NominatimArgs) -> int:
-        asyncio.run(self._do_index(args))
+        asyncio.run(self._do_index(args), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
 
         if not args.no_boundaries and not args.boundaries_only \
            and args.minrank == 0 and args.maxrank == 30:

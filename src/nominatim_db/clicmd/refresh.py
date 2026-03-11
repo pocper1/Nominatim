@@ -104,7 +104,7 @@ class UpdateRefresh:
                                            force_reimport=args.postcode_force_reimport)
                 indexer = Indexer(args.config.get_libpq_dsn(), tokenizer,
                                   args.threads or 1)
-                asyncio.run(indexer.index_postcodes())
+                asyncio.run(indexer.index_postcodes(), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
             else:
                 LOG.error("The place table doesn't exist. "
                           "Postcode updates on a frozen database is not possible.")
