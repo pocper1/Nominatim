@@ -66,7 +66,8 @@ class UpdateAddData:
         from ..tools import add_osm_data
 
         if args.tiger_data:
-            return asyncio.run(self._add_tiger_data(args), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
+            from ..utils.async_ops import run_legacy_asyncio
+            return run_legacy_asyncio(self._add_tiger_data(args))
     
         with connect(args.config.get_libpq_dsn()) as conn:
             if is_frozen(conn):

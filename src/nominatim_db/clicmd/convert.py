@@ -82,7 +82,8 @@ class ConvertDB:
 
         if args.format == 'sqlite':
             from ..tools import convert_sqlite
-            asyncio.run(convert_sqlite.convert(args.project_dir, args.output, self.options),  loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
+            from ..utils.async_ops import run_legacy_asyncio
+            run_legacy_asyncio(convert_sqlite.convert(args.project_dir, args.output, self.options))
             return 0
 
         return 1

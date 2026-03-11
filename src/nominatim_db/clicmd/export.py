@@ -82,7 +82,8 @@ class QueryExport:
                            help='Export only children of this OSM relation')
 
     def run(self, args: NominatimArgs) -> int:
-        return asyncio.run(export(args), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
+        from ..utils.async_ops import run_legacy_asyncio
+        return run_legacy_asyncio(export(args))
 
 
 async def export(args: NominatimArgs) -> int:

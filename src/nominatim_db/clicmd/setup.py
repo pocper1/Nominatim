@@ -75,12 +75,8 @@ class SetupAll:
         if args.osm_file is not None and args.continue_at not in ('import-from-file', None):
             raise UsageError(f"Cannot use --continue {args.continue_at} and --osm-file together.")
 
-        if args.continue_at is not None and args.prepare_database:
-            raise UsageError(
-                "Cannot use --continue and --prepare-database together."
-            )
-
-        return asyncio.run(self.async_run(args), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
+        from ..utils.async_ops import run_legacy_asyncio
+        return run_legacy_asyncio(self.async_run(args))
     
     async def async_run(self, args: NominatimArgs) -> int:
         from ..data import country_info
