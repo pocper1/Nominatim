@@ -32,16 +32,15 @@ def _with_srid(geom, default=None):
     return f"SRID=4326;{geom}"
 
 
-@pytest.fixture(scope="function")
-def event_loop():
+@pytest.fixture
+def event_loop_policy():
     if sys.platform == 'win32':
-        loop = asyncio.SelectorEventLoop()
-    else:
-        loop = asyncio.new_event_loop()
+        import warnings
+        with warnings.catch_warnings():
+            # warnings.simplefilter("ignore", DeprecationWarning)
+            return asyncio.WindowsSelectorEventLoopPolicy()
 
-    yield loop
-
-    loop.close()
+    return asyncio.DefaultEventLoopPolicy()
 
 
 @pytest.fixture
