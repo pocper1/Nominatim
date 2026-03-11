@@ -13,7 +13,6 @@ import importlib
 import logging
 import sys
 import argparse
-import asyncio
 from pathlib import Path
 
 from .config import Configuration

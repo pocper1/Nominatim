@@ -7,7 +7,6 @@
 """
 Various helper classes for running Nominatim commands.
 """
-import asyncio
 from collections import namedtuple
 
 APIResponse = namedtuple('APIResponse', ['endpoint', 'status', 'body', 'headers'])

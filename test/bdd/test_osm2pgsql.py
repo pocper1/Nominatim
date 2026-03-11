@@ -7,7 +7,6 @@
 """
 Collector for BDD osm2pgsql import style tests.
 """
-import asyncio
 import random
 
 import pytest

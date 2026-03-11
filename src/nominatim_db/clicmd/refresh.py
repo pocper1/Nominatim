@@ -11,7 +11,6 @@ from typing import Tuple, Optional
 import argparse
 import logging
 from pathlib import Path
-import asyncio
 
 from ..config import Configuration
 from ..db.connection import connect, table_exists

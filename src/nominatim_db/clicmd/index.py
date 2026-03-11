@@ -8,7 +8,6 @@
 Implementation of the 'index' subcommand.
 """
 import argparse
-import asyncio
 
 import psutil
 

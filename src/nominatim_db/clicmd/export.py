@@ -10,7 +10,6 @@ Implementation of the 'export' subcommand.
 from typing import Optional, List, cast
 import logging
 import argparse
-import asyncio
 import csv
 import sys
 

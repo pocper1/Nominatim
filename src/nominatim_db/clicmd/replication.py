@@ -13,7 +13,6 @@ import datetime as dt
 import logging
 import socket
 import time
-import asyncio
 
 from ..db import status
 from ..db.connection import connect

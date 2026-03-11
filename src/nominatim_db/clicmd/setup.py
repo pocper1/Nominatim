@@ -11,7 +11,6 @@ from typing import Optional
 import argparse
 import logging
 from pathlib import Path
-import asyncio
 
 import psutil
 
@@ -77,7 +76,7 @@ class SetupAll:
 
         from ..utils.async_ops import run_legacy_asyncio
         return run_legacy_asyncio(self.async_run(args))
-    
+
     async def async_run(self, args: NominatimArgs) -> int:
         from ..data import country_info
         from ..tools import database_import, postcodes, freeze

@@ -9,7 +9,6 @@ Collector for BDD import acceptance tests.
 
 These tests check the Nominatim import chain after the osm2pgsql import.
 """
-import asyncio
 import re
 from collections import defaultdict
 

@@ -9,7 +9,6 @@ Implementation of the 'convert' subcommand.
 """
 from typing import Set, Any, Union, Optional, Sequence
 import argparse
-import asyncio
 from pathlib import Path
 
 from ..errors import UsageError

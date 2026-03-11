@@ -10,7 +10,6 @@ Implementation of the 'add-data' subcommand.
 from typing import cast
 import argparse
 import logging
-import asyncio
 
 import psutil
 
@@ -68,7 +67,7 @@ class UpdateAddData:
         if args.tiger_data:
             from ..utils.async_ops import run_legacy_asyncio
             return run_legacy_asyncio(self._add_tiger_data(args))
-    
+
         with connect(args.config.get_libpq_dsn()) as conn:
             if is_frozen(conn):
                 print('Database is marked frozen. New data can\'t be added.')

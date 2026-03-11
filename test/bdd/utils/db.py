@@ -7,7 +7,6 @@
 """
 Helper functions for managing test databases.
 """
-import asyncio
 import psycopg
 from psycopg import sql as pysql
 
