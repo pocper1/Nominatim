@@ -86,7 +86,8 @@ def update_from_osm_file(db_conn, def_config, osm2pgsql_options, opl_writer, doc
         The data is expected as attached text in OPL format.
     """
     create_table_triggers(db_conn, def_config)
-    asyncio.run(load_data(def_config.get_libpq_dsn(), 1), loop_factory=asyncio.WindowsSelectorEventLoopPolicy().new_event_loop)
+    from nominatim_db.utils.async_ops import run_legacy_asyncio
+    run_legacy_asyncio(load_data(def_config.get_libpq_dsn(), 1))
     cli.nominatim(['index'], def_config.environ)
     cli.nominatim(['refresh', '--functions'], def_config.environ)
 
