@@ -181,6 +181,9 @@ class UpdateReplication:
         if args.init:
             return self._init_replication(args)
 
+        if args.check_for_updates:
+            return self._check_for_updates(args)
+
         from ..utils.async_ops import run_legacy_asyncio
         run_legacy_asyncio(self._update(args))
         return 0
