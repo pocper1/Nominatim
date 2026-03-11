@@ -7,6 +7,15 @@
 import itertools
 import sys
 import asyncio
+
+if sys.platform == 'win32':
+    _orig_new_event_loop = asyncio.new_event_loop
+
+    def _windows_new_event_loop():
+        return asyncio.SelectorEventLoop()
+
+    asyncio.new_event_loop = _windows_new_event_loop
+
 from pathlib import Path
 import psycopg
 from psycopg import sql as pysql
@@ -23,13 +32,6 @@ import nominatim_db.tokenizer.factory
 
 import dummy_tokenizer
 from cursor import CursorForTesting
-
-
-@pytest.fixture(scope="session")
-def event_loop_policy():
-    if sys.platform == 'win32':
-        return asyncio.WindowsSelectorEventLoopPolicy()
-    return asyncio.DefaultEventLoopPolicy()
 
 
 def _with_srid(geom, default=None):
