@@ -7,7 +7,7 @@
 """
 Helper functions for managing test databases.
 """
-import asyncio
+from nominatim_db.utils.asyncio_utils import run_coroutine
 import psycopg
 from psycopg import sql as pysql
 
@@ -96,7 +96,7 @@ class DBManager:
             load_address_levels_from_config(conn, config)
             create_partition_tables(conn, config)
             create_functions(conn, config, enable_diff_updates=False)
-            asyncio.run(create_search_indices(conn, config))
+            run_coroutine(create_search_indices(conn, config))
 
             tokenizer = tokenizer_factory.create_tokenizer(config)
             create_country_names(conn, tokenizer)

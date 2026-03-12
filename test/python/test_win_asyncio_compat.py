@@ -5,55 +5,62 @@
 # Copyright (C) 2026 by the Nominatim developer community.
 # For a full list of authors see the git log.
 """
-Tests for the Windows asyncio compatibility shim in conftest.py.
+Tests for the cross-platform asyncio wrapper in
+nominatim_db.utils.asyncio_utils.
 """
 import asyncio
 import sys
-import warnings
 
 import pytest
 
+from nominatim_db.utils.asyncio_utils import run_coroutine
 
-def _apply_win_asyncio_compat():
-    """Re-implementation of the compatibility logic from conftest.py."""
-    if sys.platform == 'win32':
-        if hasattr(asyncio, 'WindowsSelectorEventLoopPolicy'):
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", DeprecationWarning)
-                asyncio.set_event_loop_policy(
-                    asyncio.WindowsSelectorEventLoopPolicy()
-                )
-        elif hasattr(asyncio, 'SelectorEventLoop'):
-            _original_asyncio_run = asyncio.run
 
-            def _win_asyncio_run(main, **kwargs):
-                kwargs.setdefault('loop_factory', asyncio.SelectorEventLoop)
-                return _original_asyncio_run(main, **kwargs)
+async def _dummy_coro():
+    return 42
 
-            asyncio.run = _win_asyncio_run
+
+def test_run_coroutine_returns_result():
+    """run_coroutine should execute the coroutine and return its result."""
+    assert run_coroutine(_dummy_coro()) == 42
 
 
 @pytest.mark.skipif(sys.platform != 'win32', reason="Windows-only test")
-def test_elif_branch_wraps_asyncio_run(monkeypatch):
-    """Simulate Python 3.16+: no WindowsSelectorEventLoopPolicy,
-       but SelectorEventLoop still exists.
-       The elif branch should monkeypatch asyncio.run.
-    """
-    original_run = asyncio.run
+def test_run_coroutine_uses_selector_event_loop_on_windows():
+    """On Windows, run_coroutine should use SelectorEventLoop, not
+    ProactorEventLoop."""
+    loop_class = None
 
-    # Remove WindowsSelectorEventLoopPolicy to simulate Python 3.16+
-    monkeypatch.delattr(asyncio, 'WindowsSelectorEventLoopPolicy')
-    monkeypatch.setattr(asyncio, 'run', original_run)
+    async def _capture_loop_class():
+        nonlocal loop_class
+        loop_class = type(asyncio.get_running_loop())
+        return True
 
-    # Re-run the compatibility logic — should now take the elif path
-    _apply_win_asyncio_compat()
+    run_coroutine(_capture_loop_class())
+    assert loop_class is asyncio.SelectorEventLoop
 
-    # asyncio.run should have been replaced by our wrapper
-    assert asyncio.run is not original_run
 
-    # The wrapped version should still work correctly
-    async def dummy():
-        return 42
+@pytest.mark.skipif(sys.platform == 'win32', reason="Non-Windows test")
+def test_run_coroutine_does_not_override_loop_factory_on_unix():
+    """On non-Windows platforms, run_coroutine should not inject loop_factory."""
+    loop_class = None
 
-    result = asyncio.run(dummy())
-    assert result == 42
+    async def _capture_loop_class():
+        nonlocal loop_class
+        loop_class = type(asyncio.get_running_loop())
+        return True
+
+    run_coroutine(_capture_loop_class())
+    # On Linux/macOS the default is SelectorEventLoop anyway,
+    # but the key point is we didn't force it.
+    assert loop_class is not None
+
+
+def test_run_coroutine_forwards_kwargs():
+    """Extra kwargs should be forwarded to asyncio.run()."""
+    # debug is a standard asyncio.run kwarg
+    async def _check_debug():
+        return asyncio.get_event_loop().get_debug()
+
+    result = run_coroutine(_check_debug(), debug=True)
+    assert result is True

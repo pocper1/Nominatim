@@ -10,7 +10,7 @@ Implementation of the 'export' subcommand.
 from typing import Optional, List, cast
 import logging
 import argparse
-import asyncio
+from ..utils.asyncio_utils import run_coroutine
 import csv
 import sys
 
@@ -82,7 +82,7 @@ class QueryExport:
                            help='Export only children of this OSM relation')
 
     def run(self, args: NominatimArgs) -> int:
-        return asyncio.run(export(args))
+        return run_coroutine(export(args))
 
 
 async def export(args: NominatimArgs) -> int:

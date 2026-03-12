@@ -13,7 +13,7 @@ import importlib
 import logging
 import sys
 import argparse
-import asyncio
+from .utils.asyncio_utils import run_coroutine
 from pathlib import Path
 
 from .config import Configuration
@@ -158,7 +158,7 @@ class AdminServe:
                            help='Webserver framework to run. (default: falcon)')
 
     def run(self, args: NominatimArgs) -> int:
-        asyncio.run(self.run_uvicorn(args))
+        run_coroutine(self.run_uvicorn(args))
 
         return 0
 

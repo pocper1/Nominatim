@@ -11,7 +11,7 @@ from typing import Optional
 import argparse
 import logging
 from pathlib import Path
-import asyncio
+from ..utils.asyncio_utils import run_coroutine
 
 import psutil
 
@@ -80,7 +80,7 @@ class SetupAll:
                 "Cannot use --continue and --prepare-database together."
             )
 
-        return asyncio.run(self.async_run(args))
+        return run_coroutine(self.async_run(args))
 
     async def async_run(self, args: NominatimArgs) -> int:
         from ..data import country_info

@@ -11,7 +11,7 @@ from typing import Tuple, Optional
 import argparse
 import logging
 from pathlib import Path
-import asyncio
+from ..utils.asyncio_utils import run_coroutine
 
 from ..config import Configuration
 from ..db.connection import connect, table_exists
@@ -104,7 +104,7 @@ class UpdateRefresh:
                                            force_reimport=args.postcode_force_reimport)
                 indexer = Indexer(args.config.get_libpq_dsn(), tokenizer,
                                   args.threads or 1)
-                asyncio.run(indexer.index_postcodes())
+                run_coroutine(indexer.index_postcodes())
             else:
                 LOG.error("The place table doesn't exist. "
                           "Postcode updates on a frozen database is not possible.")

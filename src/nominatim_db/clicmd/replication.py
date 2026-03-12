@@ -13,7 +13,7 @@ import datetime as dt
 import logging
 import socket
 import time
-import asyncio
+from ..utils.asyncio_utils import run_coroutine
 
 from ..db import status
 from ..db.connection import connect
@@ -185,5 +185,5 @@ class UpdateReplication:
         if args.check_for_updates:
             return self._check_for_updates(args)
 
-        asyncio.run(self._update(args))
+        run_coroutine(self._update(args))
         return 0

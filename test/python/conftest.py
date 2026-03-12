@@ -6,37 +6,11 @@
 # For a full list of authors see the git log.
 import itertools
 import sys
-import asyncio
-import warnings
 from pathlib import Path
 import psycopg
 from psycopg import sql as pysql
 import pytest
 
-# Windows asyncio compatibility (Python 3.8 – 3.17+)
-# ---------------------------------------------------
-#   3.8  – 3.13 : set_event_loop_policy works, no deprecation warning
-#   3.14 – 3.15 : deprecated but still functional, suppress the warning
-#   3.16+       : policy API removed; monkeypatch asyncio.run with loop_factory
-
-
-def apply_win_asyncio_compat():
-    if sys.platform == 'win32':
-        if hasattr(asyncio, 'WindowsSelectorEventLoopPolicy'):
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", DeprecationWarning)
-                asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-        elif hasattr(asyncio, 'SelectorEventLoop'):
-            _original_asyncio_run = asyncio.run
-
-            def _win_asyncio_run(main, **kwargs):
-                kwargs.setdefault('loop_factory', asyncio.SelectorEventLoop)
-                return _original_asyncio_run(main, **kwargs)
-
-            asyncio.run = _win_asyncio_run
-
-
-apply_win_asyncio_compat()
 
 # always test against the source
 SRC_DIR = (Path(__file__) / '..' / '..' / '..').resolve()

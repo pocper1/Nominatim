@@ -9,7 +9,7 @@ Implementation of the 'convert' subcommand.
 """
 from typing import Set, Any, Union, Optional, Sequence
 import argparse
-import asyncio
+from ..utils.asyncio_utils import run_coroutine
 from pathlib import Path
 
 from ..errors import UsageError
@@ -83,7 +83,7 @@ class ConvertDB:
         if args.format == 'sqlite':
             from ..tools import convert_sqlite
 
-            asyncio.run(convert_sqlite.convert(args.project_dir, args.output, self.options))
+            run_coroutine(convert_sqlite.convert(args.project_dir, args.output, self.options))
             return 0
 
         return 1

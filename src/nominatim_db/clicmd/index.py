@@ -8,12 +8,12 @@
 Implementation of the 'index' subcommand.
 """
 import argparse
-import asyncio
 
 import psutil
 
 from ..db import status
 from ..db.connection import connect
+from ..utils.asyncio_utils import run_coroutine
 from .args import NominatimArgs
 
 
@@ -39,7 +39,7 @@ class UpdateIndex:
                            help='Maximum/finishing rank')
 
     def run(self, args: NominatimArgs) -> int:
-        asyncio.run(self._do_index(args))
+        run_coroutine(self._do_index(args))
 
         if not args.no_boundaries and not args.boundaries_only \
            and args.minrank == 0 and args.maxrank == 30:
