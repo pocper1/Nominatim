@@ -7,10 +7,21 @@
 import itertools
 import sys
 import asyncio
+import warnings
 from pathlib import Path
 import psycopg
 from psycopg import sql as pysql
 import pytest
+
+# Windows asyncio compatibility (Python 3.8 – 3.17+)
+# ---------------------------------------------------
+#   3.8  – 3.13 : set_event_loop_policy works, no deprecation warning
+#   3.14 – 3.15 : deprecated but still functional, suppress the warning
+#   3.16+       : policy API may be removed; hasattr guard keeps it safe
+if sys.platform == 'win32' and hasattr(asyncio, 'WindowsSelectorEventLoopPolicy'):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 # always test against the source
 SRC_DIR = (Path(__file__) / '..' / '..' / '..').resolve()
@@ -34,11 +45,8 @@ def _with_srid(geom, default=None):
 
 @pytest.fixture
 def event_loop_policy():
-    if sys.platform == 'win32':
-        import warnings
-        with warnings.catch_warnings():
-            # warnings.simplefilter("ignore", DeprecationWarning)
-            return asyncio.WindowsSelectorEventLoopPolicy()
+    if sys.platform == 'win32' and hasattr(asyncio, 'WindowsSelectorEventLoopPolicy'):
+        return asyncio.WindowsSelectorEventLoopPolicy()
 
     return asyncio.DefaultEventLoopPolicy()
 
