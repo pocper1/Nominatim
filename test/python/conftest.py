@@ -17,11 +17,26 @@ import pytest
 # ---------------------------------------------------
 #   3.8  – 3.13 : set_event_loop_policy works, no deprecation warning
 #   3.14 – 3.15 : deprecated but still functional, suppress the warning
-#   3.16+       : policy API may be removed; hasattr guard keeps it safe
-if sys.platform == 'win32' and hasattr(asyncio, 'WindowsSelectorEventLoopPolicy'):
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+#   3.16+       : policy API removed; monkeypatch asyncio.run with loop_factory
+
+
+def apply_win_asyncio_compat():
+    if sys.platform == 'win32':
+        if hasattr(asyncio, 'WindowsSelectorEventLoopPolicy'):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", DeprecationWarning)
+                asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        elif hasattr(asyncio, 'SelectorEventLoop'):
+            _original_asyncio_run = asyncio.run
+
+            def _win_asyncio_run(main, **kwargs):
+                kwargs.setdefault('loop_factory', asyncio.SelectorEventLoop)
+                return _original_asyncio_run(main, **kwargs)
+
+            asyncio.run = _win_asyncio_run
+
+
+apply_win_asyncio_compat()
 
 # always test against the source
 SRC_DIR = (Path(__file__) / '..' / '..' / '..').resolve()
@@ -41,14 +56,6 @@ def _with_srid(geom, default=None):
         return None if default is None else f"SRID=4326;{default}"
 
     return f"SRID=4326;{geom}"
-
-
-@pytest.fixture
-def event_loop_policy():
-    if sys.platform == 'win32' and hasattr(asyncio, 'WindowsSelectorEventLoopPolicy'):
-        return asyncio.WindowsSelectorEventLoopPolicy()
-
-    return asyncio.DefaultEventLoopPolicy()
 
 
 @pytest.fixture
@@ -402,3 +409,19 @@ def tokenizer_mock(monkeypatch, property_table):
         return dummy_tokenizer.DummyTokenizer(None)
 
     return _create_tokenizer
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason="Windows-only test")
+def test_elif_branch_wraps_asyncio_run(monkeypatch):
+    """Simulate Python 3.16+: no WindowsSelectorEventLoopPolicy, has SelectorEventLoop."""
+    original_run = asyncio.run
+    monkeypatch.delattr(asyncio, 'WindowsSelectorEventLoopPolicy')
+    monkeypatch.setattr(asyncio, 'run', original_run)
+    apply_win_asyncio_compat()
+
+    assert asyncio.run is not original_run
+
+    async def dummy():
+        return 42
+    result = asyncio.run(dummy())
+    assert result == 42
