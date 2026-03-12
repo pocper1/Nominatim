@@ -11,10 +11,12 @@ import psycopg
 from psycopg import sql as pysql
 import pytest
 
-
 # always test against the source
 SRC_DIR = (Path(__file__) / '..' / '..' / '..').resolve()
 sys.path.insert(0, str(SRC_DIR / 'src'))
+
+from nominatim_db.utils.asyncio_utils import ensure_compatible_loop_policy
+ensure_compatible_loop_policy()
 
 from nominatim_db.config import Configuration
 from nominatim_db.db import connection, properties
