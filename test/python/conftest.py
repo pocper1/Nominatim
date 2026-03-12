@@ -409,19 +409,3 @@ def tokenizer_mock(monkeypatch, property_table):
         return dummy_tokenizer.DummyTokenizer(None)
 
     return _create_tokenizer
-
-
-@pytest.mark.skipif(sys.platform != 'win32', reason="Windows-only test")
-def test_elif_branch_wraps_asyncio_run(monkeypatch):
-    """Simulate Python 3.16+: no WindowsSelectorEventLoopPolicy, has SelectorEventLoop."""
-    original_run = asyncio.run
-    monkeypatch.delattr(asyncio, 'WindowsSelectorEventLoopPolicy')
-    monkeypatch.setattr(asyncio, 'run', original_run)
-    apply_win_asyncio_compat()
-
-    assert asyncio.run is not original_run
-
-    async def dummy():
-        return 42
-    result = asyncio.run(dummy())
-    assert result == 42
